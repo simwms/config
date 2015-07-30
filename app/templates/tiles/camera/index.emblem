@@ -1,0 +1,9 @@
+if destroyModeEngaged
+  .very-spacious.center-align
+    md-btn text='confirm' icon='mdi-alert-warning' action='destroy' class='red darken-3' buttonType="large"
+    md-btn text='nevermind' icon='mdi-av-not-interested' action='undestroy' class='grey darken-3' buttonType="large"
+else
+  .spacious.center-align
+    md-btn text='destroy' icon='mdi-alert-warning' action='destroy' class='red darken-3'
+  form.card-form submit="editCamera"
+    == partial "tiles/camera/form"

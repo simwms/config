@@ -1,0 +1,5 @@
+md-card-collapsible
+  md-collapsible icon="mdi-av-my-library-add" title="New Camera" action="newCamera"
+    == outlet
+  each camera in model.cameras
+    md-collapsible icon="mdi-image-camera-alt" title=camera.cameraName action="showCamera" model=camera

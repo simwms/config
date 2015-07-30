@@ -1,0 +1,46 @@
+// application
+.ember-application {
+  > .ember-view {
+    @include display-flex;
+    @include flex-direction(column);
+    @include justify-content(space-between);
+    min-height: 100vh;
+  }
+}
+body {
+  width: 100%;
+  overflow-x: hidden;
+}
+#right-nav {
+  position: fixed;
+  width: 240px;
+  top: 60px;
+  right: 0;
+}
+
+
+// utility
+.hidden {
+  display: none;
+}
+.spacious {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+.very-spacious {
+  padding-top: 25px;
+  padding-bottom: 25px;
+}
+.float-right {
+  float: right;
+}
+.pointer {
+  cursor: pointer;
+}
+
+// extensions
+.tabs {
+  .active {
+    border-bottom: 1px solid color("red", "darken-1");
+  }
+}

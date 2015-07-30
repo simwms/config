@@ -1,0 +1,19 @@
+<main>
+  <section id="navigation">
+    {{#md-navbar name="Configuration" class="indigo"}}
+      {{#link-to "index" tagName='li'}}
+        <a>Step 1</a>
+      {{/link-to}}
+    {{/md-navbar}}
+  </section>
+  <section id="content">
+    {{outlet}}
+  </section>
+  {{!-- ember-cli-materialize modal container --}}
+  {{md-modal-container}}
+</main>
+<section id="footer">
+  {{#md-copyright text='SIMWMS' startYear=2014}}
+    <a class="grey-text text-lighten-1 right" href="#!">Installer</a>
+  {{/md-copyright}}
+</section>

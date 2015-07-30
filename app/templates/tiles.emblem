@@ -1,0 +1,36 @@
+if transitionMode
+  md-loader
+section#game
+  vector-canvas
+    grid-interactions mode=currentMode type=buildType action="clickBlank"
+    vector-tiles models=model action="clickTile"
+
+section#right-nav
+  md-card-collapsible
+    md-collapsible icon="fa-info-circle fa" active=true title="Query" action="changeMode" model="query"
+      span Query mode allows you to inspect your layout tiles.
+    md-collapsible icon="fa-arrows fa" title="Move" action="changeMode" model="move"
+      span Move mode lets you move tiles around.
+    md-collapsible icon="fa-building fa" title="Build" action="changeMode" model="build"
+      .exposition Build mode lets you put tiles onto the board.
+      if buildModeEngaged
+        md-card-collapsible
+          md-collapsible icon="fa fa-road" title="Road" action="selectBuild" model="road"
+            span Place a road tile
+          md-collapsible icon="fa fa-subway" title="Dock" action="selectBuild" model="barn"
+            span Place a dock tile
+          md-collapsible icon="fa fa-cubes" title="Yard" action="selectBuild" model="warehouse"
+            span Place a yard tile
+          md-collapsible icon="fa fa-calculator" title="Scale" action="selectBuild" model="scale"
+            span Place a scale tile
+          md-collapsible icon="fa fa-sign-in" title="Gate" action="selectBuild" model="station"
+            span Place a gateway tile
+    md-collapsible icon="fa-trash fa" title="Delete" action="changeMode" model="delete"
+      span You can delete tiles in delete mode.
+
+  md-fixed-btns btnIcon="mdi-alert-warning" btnClass="btn red darken-2"
+    md-fixed-btn btnClass="grey" btnIcon="fa fa-bomb" action="destroyEverything"
+
+== outlet
+
+span#busy-mouse-flash.hidden busy!!
