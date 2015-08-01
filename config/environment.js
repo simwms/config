@@ -13,8 +13,8 @@ module.exports = function(environment) {
       "script-src": "'self' https://s.ytimg.com",
       "frame-src": "*"
     },
-    baseURL: '/',
-    locationType: 'auto',
+    baseURL: '/config',
+    locationType: 'hash',
     EmberENV: {
       FEATURES: {
         // Here you can enable experimental features on an ember canary build
