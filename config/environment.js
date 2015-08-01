@@ -13,8 +13,11 @@ module.exports = function(environment) {
       "script-src": "'self' https://s.ytimg.com",
       "frame-src": "*"
     },
-    baseURL: '/config',
-    locationType: 'hash',
+    baseURL: '/',
+    locationType: 'auto',
+    namespace: "apiv2",
+    simwmsNamespace: "api",
+    simwmsHost: "https://lit-atoll-7843.herokuapp.com",
     EmberENV: {
       FEATURES: {
         // Here you can enable experimental features on an ember canary build
@@ -49,13 +52,14 @@ module.exports = function(environment) {
   }
 
   if (environment === "staging") {
-    ENV.baseURL = "/config"
-    ENV.locationType = "hash"
+    ENV.baseURL = "/config";
+    ENV.locationType = "hash";
+    ENV.host = "https://safe-forest-2497.herokuapp.com";
   }
 
   if (environment === 'production') {
-    ENV.baseURL = "/config"
-    ENV.locationType = "hash"
+    ENV.baseURL = "/config";
+    ENV.locationType = "hash";
   }
 
   return ENV;
