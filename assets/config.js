@@ -2,7 +2,7 @@
 
 /* jshint ignore:end */
 
-define('config/adapters/application', ['exports', 'ember-data', 'apiv2/config/environment'], function (exports, DS, ENV) {
+define('config/adapters/application', ['exports', 'ember-data', 'config/config/environment'], function (exports, DS, ENV) {
 
   'use strict';
 
@@ -4810,7 +4810,7 @@ catch(err) {
 if (runningTests) {
   require("config/tests/test-helper");
 } else {
-  require("config/app")["default"].create({"name":"config","version":"0.0.0.0254bd9f"});
+  require("config/app")["default"].create({"name":"config","version":"0.0.0.1a480d57"});
 }
 
 /* jshint ignore:end */
