@@ -2,14 +2,15 @@
 
 /* jshint ignore:end */
 
-define('config/adapters/application', ['exports', 'ember-data'], function (exports, DS) {
+define('config/adapters/application', ['exports', 'ember-data', 'apiv2/config/environment'], function (exports, DS, ENV) {
 
   'use strict';
 
   var ApplicationAdapter;
 
   ApplicationAdapter = DS['default'].ActiveModelAdapter.extend({
-    namespace: 'apiv2'
+    namespace: ENV['default'].namespace,
+    host: ENV['default'].host
   });
 
   exports['default'] = ApplicationAdapter;
@@ -4809,7 +4810,7 @@ catch(err) {
 if (runningTests) {
   require("config/tests/test-helper");
 } else {
-  require("config/app")["default"].create({"name":"config","version":"0.0.0.550db0f1"});
+  require("config/app")["default"].create({"name":"config","version":"0.0.0.0254bd9f"});
 }
 
 /* jshint ignore:end */
