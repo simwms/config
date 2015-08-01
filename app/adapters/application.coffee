@@ -1,5 +1,5 @@
 `import DS from 'ember-data'`
-`import ENV from 'apiv2/config/environment'`
+`import ENV from 'config/config/environment'`
 
 ApplicationAdapter = DS.ActiveModelAdapter.extend
   namespace: ENV.namespace
