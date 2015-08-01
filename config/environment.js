@@ -5,7 +5,7 @@ module.exports = function(environment) {
     modulePrefix: 'config',
     environment: environment,
     contentSecurityPolicy: { 
-      'connect-src': "'self' wss://*.firebaseio.com",
+      'connect-src': "'self' https://*.herokuapp.com",
       "img-src": "*",
       "media-src": "'self' http://localhost:*",
       "font-src": "*",
@@ -46,6 +46,11 @@ module.exports = function(environment) {
     ENV.APP.LOG_VIEW_LOOKUPS = false;
 
     ENV.APP.rootElement = '#ember-testing';
+  }
+
+  if (environment === "staging") {
+    ENV.baseURL = "/config"
+    ENV.locationType = "hash"
   }
 
   if (environment === 'production') {
