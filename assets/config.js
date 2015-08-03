@@ -2,15 +2,40 @@
 
 /* jshint ignore:end */
 
-define('config/adapters/application', ['exports', 'ember-data', 'config/config/environment'], function (exports, DS, ENV) {
+define('config/adapters/account', ['exports', 'ember', 'ember-data', 'config/config/environment'], function (exports, Ember, DS, ENV) {
 
   'use strict';
 
-  var ApplicationAdapter;
+  var AccountAdapter, volatile;
+
+  volatile = function () {
+    return Ember['default'].computed.apply(Ember['default'], arguments).volatile();
+  };
+
+  AccountAdapter = DS['default'].ActiveModelAdapter.extend({
+    host: ENV['default'].simwmsHost,
+    namespace: ENV['default'].simwmsNamespace,
+    headers: volatile('currentUser.rememberToken', function () {
+      return {
+        'remember_token': this.get('currentUser.rememberToken')
+      };
+    })
+  });
+
+  exports['default'] = AccountAdapter;
+
+});
+define('config/adapters/application', ['exports', 'ember', 'ember-data'], function (exports, Ember, DS) {
+
+  'use strict';
+
+  var ApplicationAdapter, alias;
+
+  alias = Ember['default'].computed.alias;
 
   ApplicationAdapter = DS['default'].ActiveModelAdapter.extend({
-    namespace: ENV['default'].namespace,
-    host: ENV['default'].host
+    namespace: alias('currentUser.namespace'),
+    host: alias('currentUser.host')
   });
 
   exports['default'] = ApplicationAdapter;
@@ -955,11 +980,51 @@ define('config/components/webcam-wrapper', ['exports', 'ember'], function (expor
   exports['default'] = WebamWrapper;
 
 });
+define('config/controllers/application', ['exports', 'ember'], function (exports, Ember) {
+
+  'use strict';
+
+  var ApplicationController;
+
+  ApplicationController = Ember['default'].Controller.extend({
+    queryParams: ["token", "account"],
+    token: null,
+    account: null
+  });
+
+  exports['default'] = ApplicationController;
+
+});
 define('config/controllers/array', ['exports', 'ember'], function (exports, Ember) {
 
 	'use strict';
 
 	exports['default'] = Ember['default'].Controller;
+
+});
+define('config/controllers/index', ['exports', 'ember', 'config/config/environment'], function (exports, Ember, ENV) {
+
+  'use strict';
+
+  var IndexController;
+
+  IndexController = Ember['default'].Controller.extend({
+    simwmsBackPath: ENV['default'].simwmsHomePage,
+    simwmsHelpPath: ENV['default'].simwmsHelpPage,
+    actions: {
+      submit: function submit() {
+        return this.get('model').setup(this.store).then((function (_this) {
+          return function (session) {
+            if (session.get('isLoggedIn')) {
+              return _this.transitionToRoute('tiles');
+            }
+          };
+        })(this));
+      }
+    }
+  });
+
+  exports['default'] = IndexController;
 
 });
 define('config/controllers/object', ['exports', 'ember'], function (exports, Ember) {
@@ -1495,6 +1560,29 @@ define('config/initializers/link-view', ['exports', 'ember'], function (exports,
   /* container, application */
 
 });
+define('config/initializers/user-session', ['exports', 'config/singletons/user-session'], function (exports, UserSession) {
+
+  'use strict';
+
+  var UserSessionInitializer, initialize;
+
+  initialize = function (registry, application) {
+    application.register("session:user", UserSession['default']);
+    application.inject("controller", "currentUser", "session:user");
+    application.inject("route", "currentUser", "session:user");
+    return application.inject("adapter", "currentUser", "session:user");
+  };
+
+  UserSessionInitializer = {
+    name: "user-session",
+    initialize: initialize
+  };
+
+  exports['default'] = UserSessionInitializer;
+
+  exports.initialize = initialize;
+
+});
 define('config/key-responder', ['exports', 'ember'], function (exports, Ember) {
 
   'use strict';
@@ -1737,6 +1825,33 @@ define('config/key-responder', ['exports', 'ember'], function (exports, Ember) {
   exports.KeyResponderInputSupport = KeyResponderInputSupport;
 
 });
+define('config/models/account', ['exports', 'ember-data'], function (exports, DS) {
+
+  'use strict';
+
+  var Account;
+
+  Account = DS['default'].Model.extend({
+    companyName: DS['default'].attr("string"),
+    accessKeyId: DS['default'].attr("string"),
+    secretAccessKey: DS['default'].attr("string"),
+    timezone: DS['default'].attr("string"),
+    namespace: DS['default'].attr("string"),
+    host: DS['default'].attr("string"),
+    uiuxHost: DS['default'].attr("string"),
+    configHost: DS['default'].attr("string"),
+    servicePlan: DS['default'].attr("string", {
+      defaultValue: "free-trial"
+    }),
+    user: DS['default'].belongsTo("user", {
+      async: true
+    }),
+    insertedAt: DS['default'].attr("date")
+  });
+
+  exports['default'] = Account;
+
+});
 define('config/models/camera', ['exports', 'ember-data'], function (exports, DS) {
 
   'use strict';
@@ -1787,6 +1902,24 @@ define('config/models/tile', ['exports', 'ember', 'ember-data'], function (expor
   exports['default'] = Tile;
 
 });
+define('config/models/user', ['exports', 'ember-data'], function (exports, DS) {
+
+  'use strict';
+
+  var User;
+
+  User = DS['default'].Model.extend({
+    email: DS['default'].attr("string"),
+    password: DS['default'].attr("string"),
+    username: DS['default'].attr("string"),
+    accounts: DS['default'].hasMany("account", {
+      async: true
+    })
+  });
+
+  exports['default'] = User;
+
+});
 define('config/router', ['exports', 'ember', 'config/config/environment'], function (exports, Ember, config) {
 
   'use strict';
@@ -1821,6 +1954,35 @@ define('config/router', ['exports', 'ember', 'config/config/environment'], funct
   exports['default'] = Router;
 
 });
+define('config/routes/application', ['exports', 'ember'], function (exports, Ember) {
+
+  'use strict';
+
+  var ApplicationRoute;
+
+  ApplicationRoute = Ember['default'].Route.extend({
+    queryParams: {
+      token: {
+        refreshModel: true
+      },
+      account: {
+        refreshModel: true
+      }
+    },
+    model: function model(arg) {
+      var account, token;
+      token = arg.token, account = arg.account;
+      this.currentUser.configure({
+        token: token,
+        account: account
+      });
+      return this.currentUser.setup(this.store);
+    }
+  });
+
+  exports['default'] = ApplicationRoute;
+
+});
 define('config/routes/index', ['exports', 'ember'], function (exports, Ember) {
 
   'use strict';
@@ -1828,8 +1990,13 @@ define('config/routes/index', ['exports', 'ember'], function (exports, Ember) {
   var IndexRoute;
 
   IndexRoute = Ember['default'].Route.extend({
-    beforeModel: function beforeModel() {
-      return this.transitionTo("tiles");
+    model: function model(params) {
+      return this.modelFor("application");
+    },
+    afterModel: function afterModel(model) {
+      if (model.get("isLoggedIn")) {
+        return this.transitionTo("tiles");
+      }
     }
   });
 
@@ -1843,6 +2010,11 @@ define('config/routes/tiles', ['exports', 'ember'], function (exports, Ember) {
   var TilesRoute;
 
   TilesRoute = Ember['default'].Route.extend({
+    beforeModel: function beforeModel() {
+      if (!this.currentUser.get("isLoggedIn")) {
+        return this.transitionTo("index");
+      }
+    },
     model: function model() {
       return this.store.find("tile");
     },
@@ -1930,6 +2102,90 @@ define('config/services/modal-dialog', ['exports', 'ember-modal-dialog/services/
 	exports['default'] = Service['default'];
 
 });
+define('config/singletons/user-session', ['exports', 'ember'], function (exports, Ember) {
+
+  'use strict';
+
+  var Errors, UserSession, alias, ifAny, ifPresent, isBlank, notEmpty;
+
+  alias = Ember['default'].computed.alias;
+
+  ifPresent = Ember['default'].computed.and;
+
+  ifAny = Ember['default'].computed.or;
+
+  isBlank = Ember['default'].isBlank;
+
+  notEmpty = Ember['default'].computed.notEmpty;
+
+  Errors = Ember['default'].Object.extend({
+    hasErrors: ifAny("hasAccountErrors", "hasTokenErrors"),
+    hasAccountErrors: notEmpty("account"),
+    hasTokenErrors: notEmpty("token"),
+    clear: function clear() {
+      this.set("account", []);
+      return this.set("token", []);
+    },
+    addError: function addError(key, msg) {
+      return this.getWithDefault(key, []).pushObject(msg);
+    }
+  });
+
+  UserSession = Ember['default'].Object.extend({
+    isLoggedIn: ifPresent("account.id"),
+    namespace: alias("account.namespace"),
+    host: alias("account.host"),
+    hasErrors: alias("errors.hasErrors"),
+    errors: Errors.create(),
+    p: Ember['default'].computed(function () {
+      return new Ember['default'].RSVP.Promise((function (_this) {
+        return function (r) {
+          return r(_this);
+        };
+      })(this));
+    }),
+    checkForErrors: function checkForErrors() {
+      this.errors.clear();
+      if (isBlank(this.get("rememberToken"))) {
+        this.setError("token", "cannot be blank");
+      }
+      if (isBlank(this.get("accountId"))) {
+        this.setError("account", "cannot be blank");
+      }
+      return this.get("hasErrors");
+    },
+    configure: function configure(arg) {
+      var account, token;
+      token = arg.token, account = arg.account;
+      this.set("accountId", account);
+      return this.set("rememberToken", token);
+    },
+    setup: function setup(store) {
+      if (this.checkForErrors()) {
+        return this.get("p");
+      }
+      return store.find("account", this.get("accountId")).then((function (_this) {
+        return function (account) {
+          _this.set("account", account);
+          return _this;
+        };
+      })(this))["catch"]((function (_this) {
+        return function (arg) {
+          var errors;
+          errors = arg.errors;
+          _this.setError("account", "does not match given token");
+          return _this;
+        };
+      })(this));
+    },
+    setError: function setError(key, msg) {
+      return this.errors.addError(key, msg);
+    }
+  });
+
+  exports['default'] = UserSession;
+
+});
 define('config/templates/application', ['exports'], function (exports) {
 
   'use strict';
@@ -1937,6 +2193,48 @@ define('config/templates/application', ['exports'], function (exports) {
   exports['default'] = Ember.HTMLBars.template((function() {
     var child0 = (function() {
       var child0 = (function() {
+        var child0 = (function() {
+          return {
+            isHTMLBars: true,
+            revision: "Ember@1.12.0",
+            blockParams: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            build: function build(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("          ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("a");
+              var el2 = dom.createTextNode("Setup Warehouse");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            render: function render(context, env, contextualElement) {
+              var dom = env.dom;
+              dom.detectNamespace(contextualElement);
+              var fragment;
+              if (env.useFragmentCache && dom.canClone) {
+                if (this.cachedFragment === null) {
+                  fragment = this.build(dom);
+                  if (this.hasRendered) {
+                    this.cachedFragment = fragment;
+                  } else {
+                    this.hasRendered = true;
+                  }
+                }
+                if (this.cachedFragment) {
+                  fragment = dom.cloneNode(this.cachedFragment, true);
+                }
+              } else {
+                fragment = this.build(dom);
+              }
+              return fragment;
+            }
+          };
+        }());
         return {
           isHTMLBars: true,
           revision: "Ember@1.12.0",
@@ -1945,18 +2243,13 @@ define('config/templates/application', ['exports'], function (exports) {
           hasRendered: false,
           build: function build(dom) {
             var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("        ");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createElement("a");
-            var el2 = dom.createTextNode("Step 1");
-            dom.appendChild(el1, el2);
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n");
+            var el1 = dom.createComment("");
             dom.appendChild(el0, el1);
             return el0;
           },
           render: function render(context, env, contextualElement) {
             var dom = env.dom;
+            var hooks = env.hooks, block = hooks.block;
             dom.detectNamespace(contextualElement);
             var fragment;
             if (env.useFragmentCache && dom.canClone) {
@@ -1974,6 +2267,10 @@ define('config/templates/application', ['exports'], function (exports) {
             } else {
               fragment = this.build(dom);
             }
+            var morph0 = dom.createMorphAt(fragment,0,0,contextualElement);
+            dom.insertBoundary(fragment, null);
+            dom.insertBoundary(fragment, 0);
+            block(env, morph0, context, "link-to", ["tiles"], {"tagName": "li"}, child0, null);
             return fragment;
           }
         };
@@ -2013,12 +2310,136 @@ define('config/templates/application', ['exports'], function (exports) {
           var morph0 = dom.createMorphAt(fragment,0,0,contextualElement);
           dom.insertBoundary(fragment, null);
           dom.insertBoundary(fragment, 0);
-          block(env, morph0, context, "link-to", ["index"], {"tagName": "li"}, child0, null);
+          block(env, morph0, context, "md-navbar", [], {"name": "Configuration", "class": "indigo"}, child0, null);
           return fragment;
         }
       };
     }());
     var child1 = (function() {
+      var child0 = (function() {
+        var child0 = (function() {
+          return {
+            isHTMLBars: true,
+            revision: "Ember@1.12.0",
+            blockParams: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            build: function build(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("          ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("a");
+              var el2 = dom.createTextNode("Log In");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            render: function render(context, env, contextualElement) {
+              var dom = env.dom;
+              dom.detectNamespace(contextualElement);
+              var fragment;
+              if (env.useFragmentCache && dom.canClone) {
+                if (this.cachedFragment === null) {
+                  fragment = this.build(dom);
+                  if (this.hasRendered) {
+                    this.cachedFragment = fragment;
+                  } else {
+                    this.hasRendered = true;
+                  }
+                }
+                if (this.cachedFragment) {
+                  fragment = dom.cloneNode(this.cachedFragment, true);
+                }
+              } else {
+                fragment = this.build(dom);
+              }
+              return fragment;
+            }
+          };
+        }());
+        return {
+          isHTMLBars: true,
+          revision: "Ember@1.12.0",
+          blockParams: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          build: function build(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createComment("");
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          render: function render(context, env, contextualElement) {
+            var dom = env.dom;
+            var hooks = env.hooks, block = hooks.block;
+            dom.detectNamespace(contextualElement);
+            var fragment;
+            if (env.useFragmentCache && dom.canClone) {
+              if (this.cachedFragment === null) {
+                fragment = this.build(dom);
+                if (this.hasRendered) {
+                  this.cachedFragment = fragment;
+                } else {
+                  this.hasRendered = true;
+                }
+              }
+              if (this.cachedFragment) {
+                fragment = dom.cloneNode(this.cachedFragment, true);
+              }
+            } else {
+              fragment = this.build(dom);
+            }
+            var morph0 = dom.createMorphAt(fragment,0,0,contextualElement);
+            dom.insertBoundary(fragment, null);
+            dom.insertBoundary(fragment, 0);
+            block(env, morph0, context, "link-to", ["index"], {"tagName": "li"}, child0, null);
+            return fragment;
+          }
+        };
+      }());
+      return {
+        isHTMLBars: true,
+        revision: "Ember@1.12.0",
+        blockParams: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        build: function build(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        render: function render(context, env, contextualElement) {
+          var dom = env.dom;
+          var hooks = env.hooks, block = hooks.block;
+          dom.detectNamespace(contextualElement);
+          var fragment;
+          if (env.useFragmentCache && dom.canClone) {
+            if (this.cachedFragment === null) {
+              fragment = this.build(dom);
+              if (this.hasRendered) {
+                this.cachedFragment = fragment;
+              } else {
+                this.hasRendered = true;
+              }
+            }
+            if (this.cachedFragment) {
+              fragment = dom.cloneNode(this.cachedFragment, true);
+            }
+          } else {
+            fragment = this.build(dom);
+          }
+          var morph0 = dom.createMorphAt(fragment,0,0,contextualElement);
+          dom.insertBoundary(fragment, null);
+          dom.insertBoundary(fragment, 0);
+          block(env, morph0, context, "md-navbar", [], {"name": "Authentication Required", "class": "red"}, child0, null);
+          return fragment;
+        }
+      };
+    }());
+    var child2 = (function() {
       return {
         isHTMLBars: true,
         revision: "Ember@1.12.0",
@@ -2113,7 +2534,7 @@ define('config/templates/application', ['exports'], function (exports) {
       },
       render: function render(context, env, contextualElement) {
         var dom = env.dom;
-        var hooks = env.hooks, block = hooks.block, content = hooks.content;
+        var hooks = env.hooks, get = hooks.get, block = hooks.block, content = hooks.content;
         dom.detectNamespace(contextualElement);
         var fragment;
         if (env.useFragmentCache && dom.canClone) {
@@ -2136,10 +2557,10 @@ define('config/templates/application', ['exports'], function (exports) {
         var morph1 = dom.createMorphAt(dom.childAt(element0, [3]),1,1);
         var morph2 = dom.createMorphAt(element0,5,5);
         var morph3 = dom.createMorphAt(dom.childAt(fragment, [2]),1,1);
-        block(env, morph0, context, "md-navbar", [], {"name": "Configuration", "class": "indigo"}, child0, null);
+        block(env, morph0, context, "if", [get(env, context, "currentUser.isLoggedIn")], {}, child0, child1);
         content(env, morph1, context, "outlet");
         content(env, morph2, context, "md-modal-container");
-        block(env, morph3, context, "md-copyright", [], {"text": "SIMWMS", "startYear": 2014}, child1, null);
+        block(env, morph3, context, "md-copyright", [], {"text": "SIMWMS", "startYear": 2014}, child2, null);
         return fragment;
       }
     };
@@ -2844,6 +3265,330 @@ define('config/templates/components/vector-tiles', ['exports'], function (export
         dom.insertBoundary(fragment, null);
         dom.insertBoundary(fragment, 0);
         block(env, morph0, context, "each", [get(env, context, "tiles")], {}, child0, null);
+        return fragment;
+      }
+    };
+  }()));
+
+});
+define('config/templates/index', ['exports'], function (exports) {
+
+  'use strict';
+
+  exports['default'] = Ember.HTMLBars.template((function() {
+    var child0 = (function() {
+      var child0 = (function() {
+        return {
+          isHTMLBars: true,
+          revision: "Ember@1.12.0",
+          blockParams: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          build: function build(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createElement("span");
+            var el2 = dom.createTextNode("Proceed to Configuration");
+            dom.appendChild(el1, el2);
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          render: function render(context, env, contextualElement) {
+            var dom = env.dom;
+            dom.detectNamespace(contextualElement);
+            var fragment;
+            if (env.useFragmentCache && dom.canClone) {
+              if (this.cachedFragment === null) {
+                fragment = this.build(dom);
+                if (this.hasRendered) {
+                  this.cachedFragment = fragment;
+                } else {
+                  this.hasRendered = true;
+                }
+              }
+              if (this.cachedFragment) {
+                fragment = dom.cloneNode(this.cachedFragment, true);
+              }
+            } else {
+              fragment = this.build(dom);
+            }
+            return fragment;
+          }
+        };
+      }());
+      return {
+        isHTMLBars: true,
+        revision: "Ember@1.12.0",
+        blockParams: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        build: function build(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        render: function render(context, env, contextualElement) {
+          var dom = env.dom;
+          var hooks = env.hooks, block = hooks.block;
+          dom.detectNamespace(contextualElement);
+          var fragment;
+          if (env.useFragmentCache && dom.canClone) {
+            if (this.cachedFragment === null) {
+              fragment = this.build(dom);
+              if (this.hasRendered) {
+                this.cachedFragment = fragment;
+              } else {
+                this.hasRendered = true;
+              }
+            }
+            if (this.cachedFragment) {
+              fragment = dom.cloneNode(this.cachedFragment, true);
+            }
+          } else {
+            fragment = this.build(dom);
+          }
+          var morph0 = dom.createMorphAt(fragment,0,0,contextualElement);
+          dom.insertBoundary(fragment, null);
+          dom.insertBoundary(fragment, 0);
+          block(env, morph0, context, "link-to", ["tiles"], {"classNames": "btn-large waves-effect waves-light"}, child0, null);
+          return fragment;
+        }
+      };
+    }());
+    var child1 = (function() {
+      var child0 = (function() {
+        var child0 = (function() {
+          return {
+            isHTMLBars: true,
+            revision: "Ember@1.12.0",
+            blockParams: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            build: function build(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createElement("p");
+              var el2 = dom.createTextNode("We were unable to automatically log you in. You can either try refreshing the page, or logging in manually");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("form");
+              var el2 = dom.createComment("");
+              dom.appendChild(el1, el2);
+              var el2 = dom.createComment("");
+              dom.appendChild(el1, el2);
+              var el2 = dom.createElement("div");
+              dom.setAttribute(el2,"class","actions");
+              var el3 = dom.createComment("");
+              dom.appendChild(el2, el3);
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            render: function render(context, env, contextualElement) {
+              var dom = env.dom;
+              var hooks = env.hooks, element = hooks.element, get = hooks.get, inline = hooks.inline;
+              dom.detectNamespace(contextualElement);
+              var fragment;
+              if (env.useFragmentCache && dom.canClone) {
+                if (this.cachedFragment === null) {
+                  fragment = this.build(dom);
+                  if (this.hasRendered) {
+                    this.cachedFragment = fragment;
+                  } else {
+                    this.hasRendered = true;
+                  }
+                }
+                if (this.cachedFragment) {
+                  fragment = dom.cloneNode(this.cachedFragment, true);
+                }
+              } else {
+                fragment = this.build(dom);
+              }
+              var element2 = dom.childAt(fragment, [1]);
+              var morph0 = dom.createMorphAt(element2,0,0);
+              var morph1 = dom.createMorphAt(element2,1,1);
+              var morph2 = dom.createMorphAt(dom.childAt(element2, [2]),0,0);
+              element(env, element2, context, "action", ["submit"], {"on": "submit"});
+              inline(env, morph0, context, "md-input", [], {"type": "text", "value": get(env, context, "model.accountId"), "errors": get(env, context, "model.errors.account"), "label": "Account Id"});
+              inline(env, morph1, context, "md-input", [], {"type": "text", "value": get(env, context, "model.rememberToken"), "errors": get(env, context, "model.errors.token"), "label": "Account Token"});
+              inline(env, morph2, context, "md-btn-submit", [], {"icon": "mdi-content-send", "iconPosition": "right", "text": "Submit"});
+              return fragment;
+            }
+          };
+        }());
+        var child1 = (function() {
+          return {
+            isHTMLBars: true,
+            revision: "Ember@1.12.0",
+            blockParams: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            build: function build(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createElement("a");
+              var el2 = dom.createTextNode("Go Back");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("a");
+              var el2 = dom.createTextNode("Help");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            render: function render(context, env, contextualElement) {
+              var dom = env.dom;
+              var hooks = env.hooks, get = hooks.get, element = hooks.element;
+              dom.detectNamespace(contextualElement);
+              var fragment;
+              if (env.useFragmentCache && dom.canClone) {
+                if (this.cachedFragment === null) {
+                  fragment = this.build(dom);
+                  if (this.hasRendered) {
+                    this.cachedFragment = fragment;
+                  } else {
+                    this.hasRendered = true;
+                  }
+                }
+                if (this.cachedFragment) {
+                  fragment = dom.cloneNode(this.cachedFragment, true);
+                }
+              } else {
+                fragment = this.build(dom);
+              }
+              var element0 = dom.childAt(fragment, [0]);
+              var element1 = dom.childAt(fragment, [1]);
+              element(env, element0, context, "bind-attr", [], {"href": get(env, context, "simwmsBackPath")});
+              element(env, element1, context, "bind-attr", [], {"href": get(env, context, "simwmsHelpPath")});
+              return fragment;
+            }
+          };
+        }());
+        return {
+          isHTMLBars: true,
+          revision: "Ember@1.12.0",
+          blockParams: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          build: function build(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createComment("");
+            dom.appendChild(el0, el1);
+            var el1 = dom.createComment("");
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          render: function render(context, env, contextualElement) {
+            var dom = env.dom;
+            var hooks = env.hooks, block = hooks.block;
+            dom.detectNamespace(contextualElement);
+            var fragment;
+            if (env.useFragmentCache && dom.canClone) {
+              if (this.cachedFragment === null) {
+                fragment = this.build(dom);
+                if (this.hasRendered) {
+                  this.cachedFragment = fragment;
+                } else {
+                  this.hasRendered = true;
+                }
+              }
+              if (this.cachedFragment) {
+                fragment = dom.cloneNode(this.cachedFragment, true);
+              }
+            } else {
+              fragment = this.build(dom);
+            }
+            var morph0 = dom.createMorphAt(fragment,0,0,contextualElement);
+            var morph1 = dom.createMorphAt(fragment,1,1,contextualElement);
+            dom.insertBoundary(fragment, null);
+            dom.insertBoundary(fragment, 0);
+            block(env, morph0, context, "md-card-content", [], {}, child0, null);
+            block(env, morph1, context, "md-card-action", [], {}, child1, null);
+            return fragment;
+          }
+        };
+      }());
+      return {
+        isHTMLBars: true,
+        revision: "Ember@1.12.0",
+        blockParams: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        build: function build(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        render: function render(context, env, contextualElement) {
+          var dom = env.dom;
+          var hooks = env.hooks, block = hooks.block;
+          dom.detectNamespace(contextualElement);
+          var fragment;
+          if (env.useFragmentCache && dom.canClone) {
+            if (this.cachedFragment === null) {
+              fragment = this.build(dom);
+              if (this.hasRendered) {
+                this.cachedFragment = fragment;
+              } else {
+                this.hasRendered = true;
+              }
+            }
+            if (this.cachedFragment) {
+              fragment = dom.cloneNode(this.cachedFragment, true);
+            }
+          } else {
+            fragment = this.build(dom);
+          }
+          var morph0 = dom.createMorphAt(fragment,0,0,contextualElement);
+          dom.insertBoundary(fragment, null);
+          dom.insertBoundary(fragment, 0);
+          block(env, morph0, context, "md-card", [], {"title": "Please Manually Login"}, child0, null);
+          return fragment;
+        }
+      };
+    }());
+    return {
+      isHTMLBars: true,
+      revision: "Ember@1.12.0",
+      blockParams: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      build: function build(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1,"class","container");
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2,"class","row");
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3,"class","col s12 m6 l4");
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      render: function render(context, env, contextualElement) {
+        var dom = env.dom;
+        var hooks = env.hooks, get = hooks.get, block = hooks.block;
+        dom.detectNamespace(contextualElement);
+        var fragment;
+        if (env.useFragmentCache && dom.canClone) {
+          if (this.cachedFragment === null) {
+            fragment = this.build(dom);
+            if (this.hasRendered) {
+              this.cachedFragment = fragment;
+            } else {
+              this.hasRendered = true;
+            }
+          }
+          if (this.cachedFragment) {
+            fragment = dom.cloneNode(this.cachedFragment, true);
+          }
+        } else {
+          fragment = this.build(dom);
+        }
+        var morph0 = dom.createMorphAt(dom.childAt(fragment, [0, 0, 0]),0,0);
+        block(env, morph0, context, "if", [get(env, context, "currentUser.isLoggedIn")], {}, child0, child1);
         return fragment;
       }
     };
@@ -4775,6 +5520,32 @@ define('config/tests/test-helper.jshint', function () {
   });
 
 });
+define('config/tests/unit/initializers/user-session-test', ['ember', 'config/initializers/user-session', 'qunit'], function (Ember, user_session, qunit) {
+
+  'use strict';
+
+  var application, container;
+
+  container = null;
+
+  application = null;
+
+  qunit.module('UserSessionInitializer', {
+    beforeEach: function beforeEach() {
+      return Ember['default'].run(function () {
+        application = Ember['default'].Application.create();
+        container = application.__container__;
+        return application.deferReadiness();
+      });
+    }
+  });
+
+  qunit.test('it works', function (assert) {
+    user_session.initialize(container, application);
+    return assert.ok(true);
+  });
+
+});
 define('config/views/application', ['exports', 'ember'], function (exports, Ember) {
 
 	'use strict';
@@ -4810,7 +5581,7 @@ catch(err) {
 if (runningTests) {
   require("config/tests/test-helper");
 } else {
-  require("config/app")["default"].create({"name":"config","version":"0.0.0.1a480d57"});
+  require("config/app")["default"].create({"name":"config","version":"0.0.0.6d3fa4ed"});
 }
 
 /* jshint ignore:end */
