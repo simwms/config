@@ -1,0 +1,18 @@
+.container
+  .row
+    .col.s12.m6.l4
+      if currentUser.isLoggedIn
+        link-to "tiles" classNames="btn-large waves-effect waves-light"
+          span Proceed to Configuration
+      else
+        md-card title="Please Manually Login"
+          md-card-content
+            p We were unable to automatically log you in. You can either try refreshing the page, or logging in manually
+            form submit="submit"
+              md-input type="text" value=model.accountId errors=model.errors.account label="Account Id"
+              md-input type="text" value=model.rememberToken errors=model.errors.token label="Account Token"
+              .actions
+                md-btn-submit icon='mdi-content-send' iconPosition='right' text='Submit'
+          md-card-action
+            a href=simwmsBackPath Go Back
+            a href=simwmsHelpPath Help

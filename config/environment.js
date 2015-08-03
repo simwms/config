@@ -17,7 +17,9 @@ module.exports = function(environment) {
     locationType: 'auto',
     namespace: "apiv2",
     simwmsNamespace: "api",
-    simwmsHost: "https://lit-atoll-7843.herokuapp.com",
+    simwmsHost: "http://localhost:3999",
+    simwmsHomePage: "https://simwms.github.io",
+    simwmsHelpPage: "https://simwms.github.io/#/o/help",
     EmberENV: {
       FEATURES: {
         // Here you can enable experimental features on an ember canary build
@@ -55,6 +57,7 @@ module.exports = function(environment) {
     ENV.baseURL = "/config";
     ENV.locationType = "hash";
     ENV.host = "https://safe-forest-2497.herokuapp.com";
+    ENV.simwmsHost = "https://lit-atoll-7843.herokuapp.com";
   }
 
   if (environment === 'production') {

@@ -1,8 +1,10 @@
+`import Ember from 'ember'`
 `import DS from 'ember-data'`
-`import ENV from 'config/config/environment'`
+
+alias = Ember.computed.alias
 
 ApplicationAdapter = DS.ActiveModelAdapter.extend
-  namespace: ENV.namespace
-  host: ENV.host
+  namespace: alias "currentUser.namespace"
+  host: alias "currentUser.host"
 
 `export default ApplicationAdapter`
