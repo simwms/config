@@ -982,17 +982,13 @@ define('config/components/webcam-wrapper', ['exports', 'ember'], function (expor
 });
 define('config/controllers/application', ['exports', 'ember'], function (exports, Ember) {
 
-  'use strict';
+	'use strict';
 
-  var ApplicationController;
+	var ApplicationController;
 
-  ApplicationController = Ember['default'].Controller.extend({
-    queryParams: ["token", "account"],
-    token: null,
-    account: null
-  });
+	ApplicationController = Ember['default'].Controller.extend();
 
-  exports['default'] = ApplicationController;
+	exports['default'] = ApplicationController;
 
 });
 define('config/controllers/array', ['exports', 'ember'], function (exports, Ember) {
@@ -1009,6 +1005,9 @@ define('config/controllers/index', ['exports', 'ember', 'config/config/environme
   var IndexController;
 
   IndexController = Ember['default'].Controller.extend({
+    queryParams: ['token', 'account'],
+    token: null,
+    account: null,
     simwmsBackPath: ENV['default'].simwmsHomePage,
     simwmsHelpPath: ENV['default'].simwmsHelpPage,
     actions: {
@@ -1956,31 +1955,13 @@ define('config/router', ['exports', 'ember', 'config/config/environment'], funct
 });
 define('config/routes/application', ['exports', 'ember'], function (exports, Ember) {
 
-  'use strict';
+	'use strict';
 
-  var ApplicationRoute;
+	var ApplicationRoute;
 
-  ApplicationRoute = Ember['default'].Route.extend({
-    queryParams: {
-      token: {
-        refreshModel: true
-      },
-      account: {
-        refreshModel: true
-      }
-    },
-    model: function model(arg) {
-      var account, token;
-      token = arg.token, account = arg.account;
-      this.currentUser.configure({
-        token: token,
-        account: account
-      });
-      return this.currentUser.setup(this.store);
-    }
-  });
+	ApplicationRoute = Ember['default'].Route.extend();
 
-  exports['default'] = ApplicationRoute;
+	exports['default'] = ApplicationRoute;
 
 });
 define('config/routes/index', ['exports', 'ember'], function (exports, Ember) {
@@ -1990,8 +1971,18 @@ define('config/routes/index', ['exports', 'ember'], function (exports, Ember) {
   var IndexRoute;
 
   IndexRoute = Ember['default'].Route.extend({
+    queryParams: {
+      token: {
+        refreshModel: true
+      },
+      account: {
+        refreshModel: true
+      }
+    },
     model: function model(params) {
-      return this.modelFor("application");
+      console.log(params);
+      this.currentUser.configure(params);
+      return this.currentUser.setup(this.store);
     },
     afterModel: function afterModel(model) {
       if (model.get("isLoggedIn")) {
@@ -3589,6 +3580,53 @@ define('config/templates/index', ['exports'], function (exports) {
         }
         var morph0 = dom.createMorphAt(dom.childAt(fragment, [0, 0, 0]),0,0);
         block(env, morph0, context, "if", [get(env, context, "currentUser.isLoggedIn")], {}, child0, child1);
+        return fragment;
+      }
+    };
+  }()));
+
+});
+define('config/templates/loading', ['exports'], function (exports) {
+
+  'use strict';
+
+  exports['default'] = Ember.HTMLBars.template((function() {
+    return {
+      isHTMLBars: true,
+      revision: "Ember@1.12.0",
+      blockParams: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      build: function build(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      render: function render(context, env, contextualElement) {
+        var dom = env.dom;
+        var hooks = env.hooks, content = hooks.content;
+        dom.detectNamespace(contextualElement);
+        var fragment;
+        if (env.useFragmentCache && dom.canClone) {
+          if (this.cachedFragment === null) {
+            fragment = this.build(dom);
+            if (this.hasRendered) {
+              this.cachedFragment = fragment;
+            } else {
+              this.hasRendered = true;
+            }
+          }
+          if (this.cachedFragment) {
+            fragment = dom.cloneNode(this.cachedFragment, true);
+          }
+        } else {
+          fragment = this.build(dom);
+        }
+        var morph0 = dom.createMorphAt(fragment,0,0,contextualElement);
+        dom.insertBoundary(fragment, null);
+        dom.insertBoundary(fragment, 0);
+        content(env, morph0, context, "md-loader");
         return fragment;
       }
     };
@@ -5581,7 +5619,7 @@ catch(err) {
 if (runningTests) {
   require("config/tests/test-helper");
 } else {
-  require("config/app")["default"].create({"name":"config","version":"0.0.0.6d3fa4ed"});
+  require("config/app")["default"].create({"name":"config","version":"0.0.0.e03fdd84"});
 }
 
 /* jshint ignore:end */
