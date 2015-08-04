@@ -1,8 +1,16 @@
 `import Ember from 'ember'`
 
 IndexRoute = Ember.Route.extend
+  queryParams:
+    token:
+      refreshModel: true
+    account:
+      refreshModel: true
+
   model: (params) ->
-    @modelFor "application"
+    console.log params
+    @currentUser.configure(params)
+    @currentUser.setup(@store)
 
   afterModel: (model) ->
     if model.get("isLoggedIn")

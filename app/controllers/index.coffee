@@ -1,6 +1,10 @@
 `import Ember from 'ember'`
 `import ENV from 'config/config/environment'`
 IndexController = Ember.Controller.extend
+  queryParams: ["token", "account"]
+  token: null
+  account: null
+  
   simwmsBackPath: ENV.simwmsHomePage
   simwmsHelpPath: ENV.simwmsHelpPage
   actions:
