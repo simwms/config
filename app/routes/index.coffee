@@ -8,7 +8,6 @@ IndexRoute = Ember.Route.extend
       refreshModel: true
 
   model: (params) ->
-    console.log params
     @currentUser.configure(params)
     @currentUser.setup(@store)
 
