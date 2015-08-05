@@ -1980,7 +1980,6 @@ define('config/routes/index', ['exports', 'ember'], function (exports, Ember) {
       }
     },
     model: function model(params) {
-      console.log(params);
       this.currentUser.configure(params);
       return this.currentUser.setup(this.store);
     },
@@ -2148,8 +2147,8 @@ define('config/singletons/user-session', ['exports', 'ember'], function (exports
     configure: function configure(arg) {
       var account, token;
       token = arg.token, account = arg.account;
-      this.set("accountId", account);
-      return this.set("rememberToken", token);
+      this.set("accountId", account != null ? account : Cookies.get("accountId"));
+      return this.set("rememberToken", token != null ? token : Cookies.get("rememberToken"));
     },
     setup: function setup(store) {
       if (this.checkForErrors()) {
@@ -2158,6 +2157,8 @@ define('config/singletons/user-session', ['exports', 'ember'], function (exports
       return store.find("account", this.get("accountId")).then((function (_this) {
         return function (account) {
           _this.set("account", account);
+          Cookies.set("accountId", account.get("id"));
+          Cookies.set("rememberToken", account.get("rememberToken"));
           return _this;
         };
       })(this))["catch"]((function (_this) {
@@ -2165,6 +2166,8 @@ define('config/singletons/user-session', ['exports', 'ember'], function (exports
           var errors;
           errors = arg.errors;
           _this.setError("account", "does not match given token");
+          Cookies.remove("accountId");
+          Cookies.remove("rememberToken");
           return _this;
         };
       })(this));
@@ -5619,7 +5622,7 @@ catch(err) {
 if (runningTests) {
   require("config/tests/test-helper");
 } else {
-  require("config/app")["default"].create({"name":"config","version":"0.0.0.e03fdd84"});
+  require("config/app")["default"].create({"name":"config","version":"0.0.0.2beb8a3d"});
 }
 
 /* jshint ignore:end */
