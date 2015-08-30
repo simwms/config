@@ -1,4 +1,4 @@
-proxyPath = '/apiv2'
+proxyPath = '/apiv3'
 proxy = require('http-proxy').createProxyServer({})
 
 proxy.on 'error', (err, req) ->

@@ -15,9 +15,7 @@ module.exports = function(environment) {
     },
     baseURL: '/',
     locationType: 'auto',
-    namespace: "apiv2",
-    simwmsNamespace: "api",
-    simwmsHost: "http://localhost:3999",
+    namespace: "apiv3",
     simwmsHomePage: "https://simwms.github.io",
     simwmsHelpPage: "https://simwms.github.io/#/o/help",
     EmberENV: {

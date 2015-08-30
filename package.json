@@ -48,6 +48,7 @@
     "ember-moment": "1.1.1",
     "ember-new-computed": "1.0.1",
     "ember-radio-button": "1.0.4",
+    "ember-simwms-session": "git://github.com/simwms/ember-simwms-session",
     "express": "^4.12.4",
     "glob": "^5.0.10",
     "http-proxy": "^1.11.1",
