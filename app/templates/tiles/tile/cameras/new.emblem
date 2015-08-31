@@ -1,0 +1,2 @@
+form.card-form submit="newCamera"
+  == partial "tiles/camera/form"

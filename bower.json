@@ -11,6 +11,16 @@
     "ember-resolver": "~0.1.18",
     "jquery": "^1.11.3",
     "loader.js": "ember-cli/loader.js#3.2.1",
-    "qunit": "~1.18.0"
+    "qunit": "~1.18.0",
+    "font-awesome": "~4.4.0",
+    "materialize": "~0.97.0",
+    "d3": "~3.5.5",
+    "webcamjs": "*",
+    "js-cookie": "~2.0.3",
+    "moment": ">= 2.8.0",
+    "moment-timezone": ">= 0.1.0"
+  },
+  "resolutions": {
+    "jquery": "^1.11.3"
   }
 }

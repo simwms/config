@@ -1,0 +1,21 @@
+#tile-modal
+  .container
+    .row
+      .col.l6.m8.s12.offset-l3.offset-m2
+        .card
+          .card-content.blue-grey-text.text-darken-4
+            .card-title.blue-grey-text.text-darken-4
+              span.capitalize camera no.
+              span= model.id
+              md-btn icon='mdi-navigation-close' action='closeModal' buttonType='floating' class="btn float-right blue-grey darken-3"
+            ul.tabs
+              li.tab.col.s4
+                link-to "tiles.tile.cameras" model.tileId
+                  span.capitalize cameras
+              li.tab.col.s4
+                link-to "tiles.camera.index" model.id
+                  span.capitalize camera data
+              li.tab.col.s4
+                link-to "tiles.camera.view" model.id
+                  span.capitalize feed video
+            == outlet

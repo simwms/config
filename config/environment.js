@@ -4,8 +4,20 @@ module.exports = function(environment) {
   var ENV = {
     modulePrefix: 'config',
     environment: environment,
+    contentSecurityPolicy: { 
+      'connect-src': "'self' https://*.herokuapp.com",
+      "img-src": "*",
+      "media-src": "'self' http://localhost:*",
+      "font-src": "*",
+      "style-src": "* 'unsafe-inline'",
+      "script-src": "'self' https://s.ytimg.com",
+      "frame-src": "*"
+    },
     baseURL: '/',
     locationType: 'auto',
+    namespace: "apiv3",
+    simwmsHomePage: "https://simwms.github.io",
+    simwmsHelpPage: "https://simwms.github.io/#/o/help",
     EmberENV: {
       FEATURES: {
         // Here you can enable experimental features on an ember canary build
@@ -39,8 +51,15 @@ module.exports = function(environment) {
     ENV.APP.rootElement = '#ember-testing';
   }
 
-  if (environment === 'production') {
+  if (environment === "staging") {
+    ENV.baseURL = "/config";
+    ENV.locationType = "hash";
+    ENV.host = "https://evening-springs-7575.herokuapp.com";
+  }
 
+  if (environment === 'production') {
+    ENV.baseURL = "/config";
+    ENV.locationType = "hash";
   }
 
   return ENV;

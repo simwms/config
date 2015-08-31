@@ -1,3 +1,27 @@
-<h2 id="title">Welcome to Ember</h2>
-
-{{outlet}}
+<main>
+  <section id="navigation">
+    {{#if currentUser.isLoggedIn}}
+      {{#md-navbar name="Configuration" class="indigo"}}
+        {{#link-to "tiles" tagName='li'}}
+          <a>Setup Warehouse</a>
+        {{/link-to}}
+      {{/md-navbar}}
+    {{else}}
+      {{#md-navbar name="Authentication Required" class="red"}}
+        {{#link-to "index" tagName='li'}}
+          <a>Log In</a>
+        {{/link-to}}
+      {{/md-navbar}}
+    {{/if}}
+  </section>
+  <section id="content">
+    {{outlet}}
+  </section>
+  {{!-- ember-cli-materialize modal container --}}
+  {{md-modal-container}}
+</main>
+<section id="footer">
+  {{#md-copyright text='SIMWMS' startYear=2014}}
+    <a class="grey-text text-lighten-1 right" href="#!">Installer</a>
+  {{/md-copyright}}
+</section>

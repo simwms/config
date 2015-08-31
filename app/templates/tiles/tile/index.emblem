@@ -1,0 +1,16 @@
+if destroyModeEngaged
+  .very-spacious.center-align
+    md-btn text='confirm' icon='mdi-alert-warning' action='destroy' class='red darken-3' buttonType="large"
+    md-btn text='nevermind' icon='mdi-av-not-interested' action='undestroy' class='grey darken-3' buttonType="large"
+
+else
+  .spacious.center-align
+    md-btn text='destroy' icon='mdi-alert-warning' action='destroy' class='red darken-3'
+
+  form.card-form submit="editTile"
+    md-input value=model.tileType label="tile type"
+    md-input value=model.tileName label="tile name"
+    md-input type="number" value=model.width label="width"
+    md-input type="number" value=model.height label="height"
+    md-btn text='cancel' icon='mdi-av-not-interested' action='cancel' class='grey darken-3' buttonType='large'
+    md-btn-submit icon='mdi-content-send' iconPosition='right' text='Submit' buttonType='large'

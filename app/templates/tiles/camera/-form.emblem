@@ -1,0 +1,9 @@
+md-switches multiple=false selection=model.cameraStyle
+  md-switch value="img-cgi" name="IP Camera"
+  md-switch value="user-media" name="Web Cam"
+  md-input value=model.cameraName label="camera name"
+if model.isImageCam
+  md-input value=model.permalink label="permalink"
+  md-input value=model.macAddress label="mac address"
+md-btn text='cancel' icon='mdi-av-not-interested' action='cancel' class='grey darken-3' buttonType='large'
+md-btn-submit icon='mdi-content-send' iconPosition='right' text='Submit' buttonType='large'

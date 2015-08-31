@@ -3,7 +3,12 @@ var EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 module.exports = function(defaults) {
   var app = new EmberApp(defaults, {
-    // Add options here
+    sassOptions: {
+      includePaths: [
+        'bower_components/materialize/sass',
+        'node_modules/compass-mixins/lib'
+      ]
+    }
   });
 
   // Use `app.import` to add additional libraries to the generated
@@ -19,5 +24,11 @@ module.exports = function(defaults) {
   // please specify an object with the list of modules as keys
   // along with the exports of each module as its value.
 
+  app.import(app.bowerDirectory + "/js-cookie/src/js.cookie.js")
+  app.import(app.bowerDirectory + "/d3/d3.js");
+  app.import(app.bowerDirectory + "/webcamjs/webcam.min.js");
+  app.import(app.bowerDirectory + "/webcamjs/webcam.swf", {
+    destDir: "assets"
+  });
   return app.toTree();
 };
