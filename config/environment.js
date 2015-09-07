@@ -16,8 +16,8 @@ module.exports = function(environment) {
     baseURL: '/',
     locationType: 'auto',
     namespace: "apiv3",
-    simwmsHomePage: "https://simwms.github.io",
-    simwmsHelpPage: "https://simwms.github.io/#/o/help",
+    simwmsHomePage: "http://pisources.com",
+    simwmsHelpPage: "http://pisources.com/#/o/help",
     EmberENV: {
       FEATURES: {
         // Here you can enable experimental features on an ember canary build
