@@ -52,13 +52,11 @@ module.exports = function(environment) {
   }
 
   if (environment === "staging") {
-    ENV.baseURL = "/config";
     ENV.locationType = "hash";
     ENV.host = "https://evening-springs-7575.herokuapp.com";
   }
 
   if (environment === 'production') {
-    ENV.baseURL = "/config";
     ENV.locationType = "hash";
     ENV.host = "https://evening-springs-7575.herokuapp.com";
   }
