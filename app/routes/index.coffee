@@ -4,7 +4,7 @@ IndexRoute = Ember.Route.extend
   queryParams:
     token:
       refreshModel: true
-    account:
+    email:
       refreshModel: true
 
   model: (params) ->

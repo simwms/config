@@ -1,0 +1,19 @@
+.employees-banner {
+  background: {
+    image: images-url('office.jpg');
+    size: cover;
+    repeat: no-repeat;
+    position: center center;
+  }
+  height: 250px;
+  @include display-flex;
+  @include flex-direction(column);
+  @include justify-content(flex-end);
+  .page-title {
+    color: color("purple", "lighten-5");
+    font-weight: bold;
+    font-size: 1.65rem;
+    margin-left: 1rem;
+    @include text-shadow(rgba(#111, 0.6) 0 0 2px);
+  }
+}

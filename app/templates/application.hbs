@@ -1,15 +1,20 @@
 <main>
   <section id="navigation">
     {{#if currentUser.isLoggedIn}}
-      {{#md-navbar name="Configuration" class="indigo"}}
+      {{#md-navbar name="Warehouse Setup" class="brown lighten-1"}}
         {{#link-to "tiles" tagName='li'}}
-          <a>Setup Warehouse</a>
+          {{#link-to "tiles"}}
+            Layout
+          {{/link-to}}
+        {{/link-to}}
+        {{#link-to "employees" tagName='li'}}
+          {{#link-to "employees"}}Employees{{/link-to}}
         {{/link-to}}
       {{/md-navbar}}
     {{else}}
       {{#md-navbar name="Authentication Required" class="red"}}
         {{#link-to "index" tagName='li'}}
-          <a>Log In</a>
+          {{#link-to "index"}}Log In{{/link-to}}
         {{/link-to}}
       {{/md-navbar}}
     {{/if}}

@@ -1,0 +1,37 @@
+{{#md-modal close='closeModal' class="test-modal"}}
+  <div class="modal-content">
+    <h5>New Employee Information</h5>
+    <div class="form-contents">
+      {{md-input icon="fa fa-user" 
+        value=model.fullName 
+        label="(Required) Employee full name" 
+        errors=errors.fullName}}
+
+      {{md-input icon="fa fa-envelope-o" 
+        type="email"
+        value=model.email 
+        label="(Required) Employee's login email" 
+        errors=errors.email}}
+
+      {{md-input icon="fa fa-phone" value=model.phone label="Contact number"}}
+
+      {{md-select content=knownRoles 
+        icon=roleIcon
+        value=model.role 
+        label="Assigned role"
+        prompt="Please choose..."
+        optionLabelPath="content.presentation"
+        optionValuePath="content.value"}}
+      {{md-input value=model.title label="Employee title"}}
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="modal-action modal-close waves-effect waves-orange btn-flat agree-button" {{action "submit"}}>
+      create new employee!
+    </button>
+
+    {{#link-to "employees.index" classNames="modal-action modal-close waves-effect waves-orange btn-flat cancel-button"}}
+      Cancel
+    {{/link-to}}
+  </div>
+{{/md-modal}}

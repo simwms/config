@@ -5,6 +5,9 @@ Router = Ember.Router.extend
   location: config.locationType
 
 Router.map ->
+  @resource "employees", path: "/employees", ->
+    @route "new"
+    @resource "employees.employee", path: "/e/:id", ->
   @resource "tiles", path: "/tiles", ->
     @resource "tiles.camera", path: "/c/:cameraId", ->
       @route "view"

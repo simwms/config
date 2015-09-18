@@ -9,6 +9,7 @@
           md-card-content
             p We were unable to automatically log you in. You can either try refreshing the page, or logging in manually
             form submit="submit"
+              md-input type="text" value=model.employeeEmail errors=model.errors.email label="Employee Email"
               md-input type="text" value=model.rememberToken errors=model.errors.token label="Account Token"
               .actions
                 md-btn-submit icon='mdi-content-send' iconPosition='right' text='Submit'

@@ -1,0 +1,15 @@
+.employees-banner.z-depth-2
+  .container
+    .row
+      .col.s12
+        link-to "employees.new" classNames="btn-floating btn-large waves-effect waves-light red"
+          i.fa.fa-plus
+        span.fa.page-title Employees
+.container
+  material-tiles-collection tiles=model as |employee|
+    material-tile-link "employees.employee" employee.id background=employee.picture
+      .tile-title
+        span= employee.fullName
+      .title-subtitle= employee.role
+
+== outlet      
