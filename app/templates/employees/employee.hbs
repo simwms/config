@@ -1,0 +1,17 @@
+{{#md-modal close='closeModal' class="test-modal"}}
+  {{#material-fancy-loader isBusy=isBusy}}
+    <div class="modal-content">
+      <h5>Edit Employee Information</h5>
+      {{partial "employees/employee/form"}}
+    </div>
+    <div class="modal-footer">
+      <button class="modal-action modal-close waves-effect waves-orange btn-flat agree-button" {{action "submit"}}>
+        edit employee!
+      </button>
+
+      {{#link-to "employees.index" class="modal-action modal-close waves-effect waves-orange btn-flat cancel-button"}}
+        Cancel
+      {{/link-to}}
+    </div>
+  {{/material-fancy-loader}}
+{{/md-modal}}

@@ -7,9 +7,21 @@
         span.fa.page-title Employees
 .container
   material-tiles-collection tiles=model as |employee|
-    material-tile-link "employees.employee" employee.id background=employee.picture
-      .tile-title
-        span= employee.fullName
-      .title-subtitle= employee.role
+    material-tile-link "employees.employee.index" employee.id background=employee.picture
+      material-tile-secondary action=(action "fireEmployee" employee) icon="fa fa-user-times fa-2x"
+        .tile-title
+          span= employee.fullName
+        .title-subtitle= employee.role
 
-== outlet      
+== outlet
+
+if suspendedEmployee
+  md-modal close='closeModal' class="test-modal"
+    material-fancy-loader isBusy=isBusy
+      .modal-content
+        span You're about to delete #{suspendedEmployee.fullName} from your staff...
+      .modal-footer
+        button.modal-action.modal-close.waves-effect.waves-orange.btn-flat.agree-button click="confirmFire"
+          span Confirm Delete
+        button.modal-action.modal-close.waves-effect.waves-orange.btn-flat.cancel-button click="closeModal"
+          span Nevermind

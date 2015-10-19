@@ -1,0 +1,23 @@
+<div class="form-contents">
+  {{md-input icon="fa fa-user" 
+    value=employee.fullName 
+    label="(Required) Employee full name" 
+    errors=errors.fullName}}
+
+  {{md-input icon="fa fa-envelope-o" 
+    type="email"
+    value=employee.email 
+    label="(Required) Employee's login email" 
+    errors=errors.email}}
+
+  {{md-input icon="fa fa-phone" value=employee.phone label="Contact number"}}
+
+  {{md-select content=knownRoles 
+    icon=roleIcon
+    value=employee.role 
+    label="Assigned role"
+    prompt="Please choose..."
+    optionLabelPath="content.presentation"
+    optionValuePath="content.value"}}
+  {{md-input value=employee.title label="Employee title"}}
+</div>

@@ -1,13 +1,12 @@
 `import Ember from 'ember'`
 `import DS from 'ember-data'`
 `import ENV from 'config/config/environment'`
-
+`import {SimwmsHeaders} from 'simwms-shared'`
 volatile = ->
   Ember.computed(arguments...).volatile()
 
-ApplicationAdapter = DS.ActiveModelAdapter.extend
-  namespace: ENV.namespace
+ApplicationAdapter = DS.ActiveModelAdapter.extend SimwmsHeaders,
+  namespace: ENV.apizNamespace
   host: ENV.host
-  headers: volatile "currentUser.simwmsAccountSession", ->
-    "simwms-account-session": @get("currentUser.simwmsAccountSession")
+
 `export default ApplicationAdapter`

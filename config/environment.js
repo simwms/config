@@ -15,8 +15,12 @@ module.exports = function(environment) {
     },
     baseURL: '/',
     locationType: 'auto',
-    namespace: "apiv3",
+    apiNamespace: "api",
+    apixNamespace: "apix",
+    apizNamespace: "apiz",
+    apiaNamespace: "apia",
     simwmsHomePage: "http://pisources.com",
+    simwmsUpgradePage: "http://pisources.com/#/o/dashboard/account/%@/upgrade",
     simwmsHelpPage: "http://pisources.com/#/o/help",
     EmberENV: {
       FEATURES: {

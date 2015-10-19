@@ -2,7 +2,6 @@
 
 ApplicationRoute = Ember.Route.extend
   model: ->
-    unless @currentUser.get("isLoggedIn")
-      @currentUser.setup(@store)
+    @currentUser.smartLogin({})
 
 `export default ApplicationRoute`

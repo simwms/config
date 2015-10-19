@@ -1,0 +1,41 @@
+.plan-banner {
+  background: {
+    image: images-url('business.jpg');
+    size: cover;
+    repeat: no-repeat;
+    position: center center;
+  }
+  height: 250px;
+  margin-bottom: 4rem;
+  @include display-flex;
+  @include flex-direction(column);
+  @include justify-content(flex-end);
+  .page-title {
+    color: #fff;
+    font-weight: bold;
+    font-size: 1.65rem;
+    margin-left: 1rem;
+    padding: 1rem;
+    background-color: rgba(#000, 0.5);
+    @include text-shadow(rgba(#111, 0.7) 0 0 3px);
+  }
+}
+
+.plan-details {
+  .plan-name {
+    padding-top: 1rem;
+    font-size: 1.55rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid color("grey", "darken-1");
+  }
+  .actions {
+    border-top: 1px solid color("grey", "lighten-1");
+  }
+  .action {
+    color: color("orange", "darken-3");
+    text-transform: uppercase;
+    padding: 1.25rem 1rem;
+    display: inline-block;
+  }
+}

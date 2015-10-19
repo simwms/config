@@ -2,17 +2,16 @@
 
 IndexRoute = Ember.Route.extend
   queryParams:
-    token:
+    userToken:
       refreshModel: true
-    email:
+    accountToken:
       refreshModel: true
 
   model: (params) ->
-    @currentUser.configure(params)
-    @currentUser.setup(@store)
+    @currentUser.smartLogin params
 
   afterModel: (model) ->
-    if model.get("isLoggedIn")
+    if @currentUser.get("accountLoggedIn")
       @transitionTo "tiles"
 
 `export default IndexRoute`

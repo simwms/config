@@ -1,0 +1,16 @@
+.plan-banner.z-depth-2
+  .container
+    .row
+      .col.s12.m6.l4.offset-m6.offset-l8
+        .align-right
+          .page-title.z-depth-1: span.fa Service Plan
+        
+.container.plan-details
+  .row
+    .col.s12.m12.l6.z-depth-1.grey.lighten-5
+      h4.plan-name Plan Name: #{model.planName}
+      material-object-listify model=model displayKeys=keys iconMap=icons
+      .actions
+        a.action href=upgradeLink
+          span modify account plan&nbsp;
+          i.fa.fa-external-link

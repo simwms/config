@@ -1,16 +1,20 @@
 .container
   .row
     .col.s12.m6.l4
-      if currentUser.isLoggedIn
-        link-to "tiles" classNames="btn-large waves-effect waves-light"
+      if currentUser.accountLoggedIn
+        link-to "tiles" class="btn-large waves-effect waves-light"
           span Proceed to Configuration
       else
         md-card title="Please Manually Login"
           md-card-content
             p We were unable to automatically log you in. You can either try refreshing the page, or logging in manually
             form submit="submit"
-              md-input type="text" value=model.employeeEmail errors=model.errors.email label="Employee Email"
-              md-input type="text" value=model.rememberToken errors=model.errors.token label="Account Token"
+              if currentUser.isLoggedIn
+                md-input disabled=false value=currentUser.username
+              else
+                md-input type="email" value=email errors=currentUser.errors.email label="Login Email"
+                md-input type="password" value=password errors=currentUser.errors.password label="Password"
+              md-input type="text" value=accountToken errors=currentUser.errors.token label="Account Permalink"
               .actions
                 md-btn-submit icon='mdi-content-send' iconPosition='right' text='Submit'
           md-card-action
