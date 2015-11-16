@@ -6,7 +6,7 @@ volatile = ->
   Ember.computed(arguments...).volatile()
 
 ApplicationAdapter = DS.ActiveModelAdapter.extend SimwmsHeaders,
-  namespace: ENV.apizNamespace
+  namespace: ENV.apiaNamespace
   host: ENV.host
 
 `export default ApplicationAdapter`

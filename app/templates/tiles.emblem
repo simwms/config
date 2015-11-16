@@ -1,35 +1,96 @@
 if transitionMode
   md-loader
-section#game
-  vector-canvas
-    grid-interactions mode=currentMode type=buildType action="clickBlank"
-    vector-tiles models=model action="clickTile"
+.row
+  if (eq vi "text")
+    .text-view.col.l5
+      ul
+        each tiles as |tile|
+          li.pointer click="'query' tile"
+            span.text-key id
+            span.text-val= tile.id
+            span.text-key x
+            span.text-val= tile.x
+            span.text-key y
+            span.text-val= tile.y
+            span.text-key tile-type
+            span.text-val= tile.tileType
 
-section#right-nav
-  md-card-collapsible
-    md-collapsible icon="fa-info-circle fa" active=true title="Query" action="changeMode" model="query"
-      span Query mode allows you to inspect your layout tiles.
-    md-collapsible icon="fa-arrows fa" title="Move" action="changeMode" model="move"
-      span Move mode lets you move tiles around.
-    md-collapsible icon="fa-building fa" title="Build" action="changeMode" model="build"
-      .exposition Build mode lets you put tiles onto the board.
-      if buildModeEngaged
-        md-card-collapsible
-          md-collapsible icon="fa fa-road" title="Road" action="selectBuild" model="road"
-            span Place a road tile
-          md-collapsible icon="fa fa-subway" title="Dock" action="selectBuild" model="barn"
-            span Place a dock tile
-          md-collapsible icon="fa fa-cubes" title="Yard" action="selectBuild" model="warehouse"
-            span Place a yard tile
-          md-collapsible icon="fa fa-calculator" title="Scale" action="selectBuild" model="scale"
-            span Place a scale tile
-          md-collapsible icon="fa fa-sign-in" title="Gate" action="selectBuild" model="station"
-            span Place a gateway tile
-    md-collapsible icon="fa-trash fa" title="Delete" action="changeMode" model="delete"
-      span You can delete tiles in delete mode.
+    .text-view.col.l5
+      ul
+        each lines as |line|
+          li.pointer click="'query' line"
+            span.text-key id
+            span.text-val= line.id
+            span.text-key x
+            span.text-val= line.x
+            span.text-key y
+            span.text-val= line.y
+            span.text-key line-type
+            span.text-val= line.lineType
+  else
+    .game-view.col.l10
+      map-grid mode=mode action="query"
+        each lines as |line|
+          map-grid-polyline model=line
+        each tiles as |tile|
+          map-grid-tile model=tile
+        map-grid-ghost model=ghost action="build"
+        map-grid-ghost-box action="select"
+        map-grid-ghost-batch
 
-  md-fixed-btns btnIcon="mdi-alert-warning" btnClass="btn red darken-2"
-    md-fixed-btn btnClass="grey" btnIcon="fa fa-bomb" action="destroyEverything"
+  #right-nav.col.l2
+    material-accordion-collection
+      material-accordion "tiles" (query-params mode="query-mode") icon="fa-info-circle" title="Query Mode"
+        p Query mode allows you to inspect your layout tiles.
+        
+      material-accordion "tiles" (query-params mode="select-mode") icon="fa-object-group" title="Select Mode"
+        p You can delete tiles in delete mode.
+
+      material-accordion "tiles" (query-params mode="build-mode") icon="fa-building" title="Build Mode"
+        p.exposition Build mode lets you put tiles onto the board.
+        if (eq mode "build-mode")
+          material-accordion-collection
+            material-accordion "tiles" (query-params type="road") icon="fa-road" title="Road"
+              p Place road lines
+            material-accordion "tiles" (query-params type="wall") icon="fa-arrows-v" title="Wall"
+              p Place wall lines
+            material-accordion "tiles" (query-params type="dock") icon="fa-truck" title="Dock"
+              p Place a dock tile
+            material-accordion "tiles" (query-params type="cell") icon="fa-cubes" title="Storage Cell"
+              p Place a storage cell tile
+            material-accordion "tiles" (query-params type="scale") icon="fa-balance-scale" title="Scale"
+              p Place a scale tile
+            material-accordion "tiles" (query-params type="desk") icon="fa-desktop" title="Office Desk"
+              p Place an office desk tile
+            material-accordion "tiles" (query-params type="entrance") icon="fa-sign-in" title="Entrance"
+              p Place an entry point tile
+            material-accordion "tiles" (query-params type="exit") icon="fa-sign-out" title="Exit"
+              p Place an exit point tile
+
+    .bonus-actions
+      if (eq mode "query-mode")
+        .switch
+          if (eq alt "delete")
+            link-to "tiles" (query-params alt="query") class="btn-floating btn-large waves-effect red"
+              fa-icon "trash"
+          else
+            link-to "tiles" (query-params alt="delete") class="btn-floating btn-large waves-effect green"
+              fa-icon "question"
+
+      if (eq mode "batch-mode")
+        button.btn-floating.btn-large.waves-effect.red click="obliterate"
+          fa-icon "trash"
+          span Delete
+
+    .secret-actions
+      if (eq vi "text")
+        link-to "tiles" (query-params vi="grid") class="btn-floating waves-effect blue"
+          fa-icon "map-o"
+          span Grid
+      else
+        link-to "tiles" (query-params vi="text") class="btn-floating waves-effect indigo"
+          fa-icon "file-text"
+          span Text
 
 == outlet
 

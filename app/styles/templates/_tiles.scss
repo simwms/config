@@ -18,3 +18,71 @@
   background-color: color("blue-grey", "darken-4");
   color: #fff;
 }
+
+.text-view {
+  .text-key {
+    font-weight: bold;
+    &::after {
+      content: ": ";
+    }
+  }
+  .text-val:not(:last-child) {
+    margin-right: 1.25rem;
+  }
+}
+
+.game-view {
+  height: 92vh;
+}
+
+#right-nav {
+  
+}
+
+svg {
+  .selected {
+    stroke: #2962ff;
+  }
+}
+
+.ghost-line {
+  stroke: #898;
+  stroke-width: 3;
+}
+
+.ghost-rect {
+  stroke: #898;
+  stroke-width: 3;
+  fill: fade-out(#e0f7fa, 0.3);
+}
+
+.road {
+  polyline {
+    stroke: #263238;
+    stroke-width: 10;
+    fill: none;
+  }
+}
+
+.tile-rect {
+  stroke: #263238;
+  stroke-width: 2;
+  fill: fade-out(#fff, 1);
+  cursor: pointer;
+  &:hover {
+    fill: fade-out(#e0f7fa, 0.3);
+  }
+}
+
+.wall {
+  polyline {
+    stroke: #263238;
+    stroke-width: 5;
+  }
+}
+
+.secret-actions {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+}

@@ -8,11 +8,4 @@
               span.capitalize tile no.
               span= model.id
               md-btn icon='mdi-navigation-close' action='closeModal' buttonType='floating' class="btn float-right blue-grey darken-3"
-            ul.tabs
-              li.tab.col.s6
-                link-to "tiles.tile.index" model.id
-                  span.capitalize attributes
-              li.tab.col.s6
-                link-to "tiles.tile.cameras" model.id
-                  span.capitalize cameras
             == outlet

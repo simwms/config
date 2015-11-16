@@ -2,10 +2,14 @@
 
 IndexRoute = Ember.Route.extend
   queryParams:
+    email:
+      refreshModel: false
+    password:
+      refreshModel: false
     userToken:
-      refreshModel: true
+      refreshModel: false
     accountToken:
-      refreshModel: true
+      refreshModel: false
 
   model: (params) ->
     @currentUser.smartLogin params

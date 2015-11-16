@@ -1,11 +1,27 @@
 `import Ember from 'ember'`
 
-TilesRoute = Ember.Route.extend
+{Route, RSVP, computed} = Ember
+{Promise} = RSVP
+
+TilesRoute = Route.extend
+  queryParams:
+    mode:
+      refreshModel: false
+    type:
+      refreshModel: false
+
   beforeModel: ->
-    unless @currentUser.get("isLoggedIn")
+    unless @currentUser.get("accountLoggedIn")
       @transitionTo "index"
   model: ->
-    @store.find "tile"
+    RSVP.hash
+      lines: @store.find "line"
+      points: @store.find "point"
+      tiles: @store.find "tile"
+
+  tearDown: Ember.on "deactivate", ->
+    @controller.selectedModels = null
+    @controller.set "busyCounter", 0
 
   actions:
     destroyTile: (tile) ->

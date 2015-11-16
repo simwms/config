@@ -49,17 +49,18 @@
     "ember-disable-proxy-controllers": "^1.0.0",
     "ember-export-application-global": "^1.0.3",
     "ember-functional-validation": "0.1.1",
-    "ember-key-responder": "0.2.1",
+    "ember-key-responder": "0.4.2",
     "ember-legacy-views": "0.2.0",
     "ember-modal-dialog": "0.7.7",
     "ember-moment": "3.6.2",
     "ember-new-computed": "1.0.3",
     "ember-radio-button": "1.0.7",
+    "ember-truth-helpers": "1.2.0",
     "express": "^4.12.4",
     "glob": "^5.0.10",
     "http-proxy": "^1.11.1",
     "morgan": "^1.5.3",
-    "simwms-assets": "git://github.com/simwms/simwms-assets.git#14fdd270bde9c127ddccd5e569668b9b5d29c250",
-    "simwms-shared": "git://github.com/simwms/simwms-shared.git#43a5ca923cf8337efc87894c73fbcd97bb443366"
+    "simwms-assets": "simwms/simwms-assets#v0.1.22",
+    "simwms-shared": "simwms/simwms-shared#v0.1.20"
   }
 }

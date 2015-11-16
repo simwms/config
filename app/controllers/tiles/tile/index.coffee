@@ -3,8 +3,10 @@ TilesTileIndexController = Ember.Controller.extend
   actions:
     destroy: ->
       if @get "destroyModeEngaged"
-        @send "destroyTile", @get "model"
-        @transitionToRoute "tiles"
+        @get "model"
+        .destroyRecord()
+        .finally =>
+          @transitionToRoute "tiles"
       @toggleProperty "destroyModeEngaged"
       return
     undestroy: ->

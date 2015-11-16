@@ -14,9 +14,11 @@
               else
                 md-input type="email" value=email errors=currentUser.errors.email label="Login Email"
                 md-input type="password" value=password errors=currentUser.errors.password label="Password"
+                md-input type="text" value=userToken errors=currentUser.errors.userToken label="User Token"
               md-input type="text" value=accountToken errors=currentUser.errors.token label="Account Permalink"
               .actions
-                md-btn-submit icon='mdi-content-send' iconPosition='right' text='Submit'
+                link-to "index" (query-params email=email password=password userToken=userToken accountToken=accountToken) class="btn"
+                  span Submit
           md-card-action
             a href=simwmsBackPath Go Back
             a href=simwmsHelpPath Help

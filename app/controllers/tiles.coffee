@@ -1,100 +1,115 @@
 `import Ember from 'ember'`
 `import CPM from 'ember-cpm'`
+`import Build from '../utils/build'`
+{Macros} = CPM
+{among} = Macros
 
-TilesController = Ember.Controller.extend
-  currentMode: "query"
-  buildModeEngaged: Ember.computed.equal "currentMode", "build"
-  buildTypeLegal: CPM.Macros.among "buildType", "road", "barn", "warehouse", "scale", "station"
+{getWithDefault, Controller, RSVP, computed, get} = Ember
+{alias, equal, gt, and: present} = computed
+
+calculateDelta = (e1, e2) ->
+  dx: e2.snapGridX - e1.snapGridX
+  dy: e2.snapGridY - e1.snapGridY
+
+shiftBy = ({dx, dy}) ->
+  (model) ->
+    model.incrementProperty "x", dx
+    model.incrementProperty "y", dy
+    model.save()
+
+TilesController = Controller.extend
+  queryParams: ["mode", "type", "alt", "vi"]
+  vi: "grid"
+  mode: "query-mode"
+  type: "road"
+  alt: "query"
+  tiles: alias "model.tiles"
+  points: alias "model.points"
+  lines: alias "model.lines"
+  buildModeEngaged: equal "mode", "build-mode"
+  typeLegal: present "ghost"
   busyCounter: 0
 
-  transitionMode: Ember.computed.gt "busyCounter", 0
+  ghost: computed "type",
+    get: ->
+      ghostType = switch @get "type"
+        when "road", "wall" then "2point"
+        when "dock", "station", "scale", "cell", "entrance", "exit", "desk" then "tile"
+        when "camera" then "point"
+      {ghostType}
 
-  tellUserToSelectTile: ->
-    alert "You forgot to select a tile type"
+  transitionMode: gt "busyCounter", 0
 
   enterTransitionMode: ->
-    @incrementProperty "busyCounter"
+    @incrementProperty "busyCounter", 1
 
   exitTransitionMode: ->
-    @decrementProperty "busyCounter"
+    @decrementProperty "busyCounter", 1
 
-  handleMove: (tile) ->
-    if Ember.isPresent @get "alreadyMovingBlank"
-      @assignTilePosition tile, @get("alreadyMovingBlank")
-      return @set "alreadyMovingBlank", null
-    if Ember.isPresent @get "alreadyMovingTile"
-      @swapTilePlaces tile, @get("alreadyMovingTile")
-      @set "alreadyMovingTile", null
-    else
-      @set "alreadyMovingTile", tile
-
-  handleBlank: (point) ->
-    if Ember.isPresent @get "alreadyMovingTile"
-      @assignTilePosition @get("alreadyMovingTile"), point
-      return @set "alreadyMovingTile", null
-    if Ember.isPresent @get "alreadyMovingBlank"
-      @set "alreadyMovingBlank", null
-    else
-      @set "alreadyMovingBlank", point
-
-  assignTilePosition: (tile, [x,y]) ->
+  makeTile: (tileCore) ->
     @enterTransitionMode()
-    tile.set "x", x
-    tile.set "y", y
-    tile.save()
-    .then => 
-      @get("model").update()
-    .finally =>
-      @exitTransitionMode()
-
-  swapTilePlaces: (tileA, tileB) ->
-    pointA = [tileA.get("x"), tileA.get("y")]
-    pointB = [tileB.get("x"), tileB.get("y")]
-    @assignTilePosition tileA, pointB
-    @assignTilePosition tileB, pointA
-
-  buildTile: ([x,y]) ->
-    return @tellUserToSelectTile() unless @get "buildTypeLegal"
-    @enterTransitionMode()
-    @store.createRecord "tile",
-      tileType: @get "buildType"
-      x: x
-      y: y
+    @store.createRecord "tile", tileCore
     .save()
     .then =>
-      @get("model").update()
+      @get("tiles").update()
     .finally =>
       @exitTransitionMode()
+  makeLine: (lineCore) ->
+    @enterTransitionMode()
+    @store.createRecord "line", lineCore
+    .save()
+    .then =>
+      @get("lines").update()
+    .finally =>
+      @exitTransitionMode()
+  handleQuery: (model) ->
+    switch get model, "tileType"
+      when "dock", "scale", "station", "cell", "entrance", "exit", "desk"
+        @transitionToRoute "tiles.tile", model
 
-  tellOffUser: ({clientX, clientY}) ->
-    Ember.$ "#busy-mouse-flash"
-    .removeClass "hidden"
-    .show()
-    .attr "style", "top: #{clientY}px; left: #{clientX}px"
-    .hide 1250
-
+  handleDelete: (model) ->
+    @enterTransitionMode()
+    model.destroyRecord()
+    .finally =>
+      @exitTransitionMode()
   actions:
-    clickTile: (tile, event) ->
-      return @tellOffUser(event) if @get "transitionMode"
-      switch @get "currentMode"
-        when "delete" then @send "destroyTile", tile
-        when "move" then @handleMove tile
-        else @transitionToRoute "tiles.tile.index", tile.get("id")
+    obliterate: ->
+      if @selectedModels?
+        @enterTransitionMode()
+        RSVP.all @selectedModels.map (model) -> model.destroyRecord()
+        .finally =>
+          @selectedModels = null
+          @exitTransitionMode()
 
-    clickBlank: (point, event) ->
-      return @tellOffUser(event) if @get "transitionMode"
-      switch @get "currentMode"
-        when "build" then @buildTile point
-        when "move" then @handleBlank point
-        else alert "You clicked a blank tile, but no action is applicable right now"
-
-    changeMode: (mode) ->
-      @set "buildType", null
-      return @set("currentMode", null) if @get("currentMode") is mode
-      @set "currentMode", mode
-
-    selectBuild: (type) ->
-      return @set("buildType", null) if @get("buildType") is type
-      @set "buildType", type
+    query: (model) ->
+      switch @get "alt"
+        when "query"
+          @handleQuery model
+        when "delete"
+          @handleDelete model
+        else throw new Error "unknown alt"
+    
+    select: (models) ->
+      @selectedModels = models
+    build: (ghost, e1, e2) ->
+      return @tellUserToSelectTile() unless @get "typeLegal"
+      switch @get "type"
+        when "road"
+          @makeLine Build.Road.from(e1).to(e2)          
+        when "wall"
+          @makeLine Build.Wall.from(e1).to(e2)
+        when "dock"
+          @makeTile Build.Dock.at(e1)
+        when "entrance"
+          @makeTile Build.Entrance.at(e1)
+        when "exit"
+          @makeTile Build.Exit.at(e1)
+        when "cell"
+          @makeTile Build.Cell.at(e1)
+        when "scale"
+          @makeTile Build.Scale.at(e1)
+        when "desk"
+          @makeTile Build.Desk.at(e1)
+        else throw new Error "Oh Shit!"
 
 `export default TilesController`

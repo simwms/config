@@ -4,7 +4,7 @@
 {alias} = computed
 
 IndexController = Ember.Controller.extend
-  queryParams: ["userToken", "accountToken"]
+  queryParams: ["userToken", "accountToken", "email", "password"]
   userToken: null
   accountToken: null
   
@@ -15,11 +15,10 @@ IndexController = Ember.Controller.extend
     submit: ->
       email = @get("email")
       password = @get("password")
-      @currentUser.smartLogin({email, password})
-      .then =>
-        if @currentUser.get("isLoggedIn")
-          alert "login success"
-        else
-          alert "login failed"
+      userToken = @get("userToken")
+      accountToken = @get "accountToken"
+      @transitionToRoute "index",
+        queryParams:
+          {email, password, userToken, accountToken}
 
 `export default IndexController`

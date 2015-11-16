@@ -10,7 +10,8 @@ else
   form.card-form submit="editTile"
     md-input value=model.tileType label="tile type"
     md-input value=model.tileName label="tile name"
-    md-input type="number" value=model.width label="width"
-    md-input type="number" value=model.height label="height"
+    md-input type="number" value=model.x label="grid x position"
+    md-input type="number" value=model.y label="grid y position"
+    md-input type="number" value=model.a label="rotation angle"
     md-btn text='cancel' icon='mdi-av-not-interested' action='cancel' class='grey darken-3' buttonType='large'
     md-btn-submit icon='mdi-content-send' iconPosition='right' text='Submit' buttonType='large'
