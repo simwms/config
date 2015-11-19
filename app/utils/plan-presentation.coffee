@@ -24,6 +24,7 @@ PlanPresentation = Object.extend
   employees: usage "employees"
   availability: annotate "plan.availability", "hours available per day"
   appointments: annotate "plan.appointments", "appointments schedulable per day"
+  isSynced: alias "sub.isSynced"
   keys: ["planName", "cost", "docks", "scales", "warehouses", "employees"]
   icons:
     planName: "fa fa-info-circle fa-lg"

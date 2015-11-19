@@ -6,3 +6,9 @@
       .actions
         link-to "plan.upgrade" class="action"
           span modify account plan&nbsp;
+    .col.l6
+      unless model.isSynced
+        .card.blue-grey
+          .card-content.white-text
+            .card-title Server Desynchronization
+            p It looks like there's a synchronization mismatch with your plan subscription. Please be patient while we sort it out.
