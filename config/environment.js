@@ -10,10 +10,13 @@ module.exports = function(environment) {
       "media-src": "'self' http://localhost:*",
       "font-src": "*",
       "style-src": "* 'unsafe-inline'",
-      "script-src": "'self' https://s.ytimg.com",
+      "script-src": "'self' https://checkout.stripe.com",
       "frame-src": "*"
     },
     baseURL: '/',
+    stripe: {
+      key: "pk_test_9VNs5lmJpCba3wXgHTbjTcCh"
+    },
     locationType: 'auto',
     apiNamespace: "api",
     apixNamespace: "apix",

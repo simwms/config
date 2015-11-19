@@ -1,10 +1,11 @@
 `import Ember from 'ember'`
 `import CPM from 'ember-cpm'`
 `import Build from '../utils/build'`
+
 {Macros} = CPM
 {among} = Macros
 
-{getWithDefault, Controller, RSVP, computed, get} = Ember
+{getWithDefault, String, Controller, RSVP, A, computed, get, isPresent} = Ember
 {alias, equal, gt, and: present} = computed
 
 calculateDelta = (e1, e2) ->
@@ -26,6 +27,8 @@ TilesController = Controller.extend
   tiles: alias "model.tiles"
   points: alias "model.points"
   lines: alias "model.lines"
+  accMta: alias "currentUser.meta"
+  requiresUpgrade: alias "accMta.requiresUpgrade"
   buildModeEngaged: equal "mode", "build-mode"
   typeLegal: present "ghost"
   busyCounter: 0
@@ -51,7 +54,9 @@ TilesController = Controller.extend
     @store.createRecord "tile", tileCore
     .save()
     .then =>
-      @get("tiles").update()
+      RSVP.hash
+        tiles: @get("tiles").update()
+        meta: @get("accMta").reload()
     .finally =>
       @exitTransitionMode()
   makeLine: (lineCore) ->
@@ -72,6 +77,36 @@ TilesController = Controller.extend
     model.destroyRecord()
     .finally =>
       @exitTransitionMode()
+
+  buildCore: (e1, e2) ->
+    switch @get "type"
+      when "road"
+        @makeLine Build.Road.from(e1).to(e2)          
+      when "wall"
+        @makeLine Build.Wall.from(e1).to(e2)
+      when "dock"
+        @makeTile Build.Dock.at(e1)
+      when "entrance"
+        @makeTile Build.Entrance.at(e1)
+      when "exit"
+        @makeTile Build.Exit.at(e1)
+      when "cell"
+        @makeTile Build.Cell.at(e1)
+      when "scale"
+        @makeTile Build.Scale.at(e1)
+      when "desk"
+        @makeTile Build.Desk.at(e1)
+      else throw new Error "Oh Shit!"
+  
+  exceededPlanLimits: ->
+    errors = @get "accMta.validationErrors"
+    type = String.pluralize @getWithDefault("type", "apple")
+    messages = get errors, type
+    if isPresent messages
+      message = A(messages).get("firstObject")
+      @notify.alert "#{type} - #{message}"
+      return true
+
   actions:
     obliterate: ->
       if @selectedModels?
@@ -92,24 +127,8 @@ TilesController = Controller.extend
     select: (models) ->
       @selectedModels = models
     build: (ghost, e1, e2) ->
-      return @tellUserToSelectTile() unless @get "typeLegal"
-      switch @get "type"
-        when "road"
-          @makeLine Build.Road.from(e1).to(e2)          
-        when "wall"
-          @makeLine Build.Wall.from(e1).to(e2)
-        when "dock"
-          @makeTile Build.Dock.at(e1)
-        when "entrance"
-          @makeTile Build.Entrance.at(e1)
-        when "exit"
-          @makeTile Build.Exit.at(e1)
-        when "cell"
-          @makeTile Build.Cell.at(e1)
-        when "scale"
-          @makeTile Build.Scale.at(e1)
-        when "desk"
-          @makeTile Build.Desk.at(e1)
-        else throw new Error "Oh Shit!"
+      return @notify.alert("You need to select a tile") unless @get "typeLegal"
+      @buildCore(e1, e2) unless @exceededPlanLimits()
+      
 
 `export default TilesController`

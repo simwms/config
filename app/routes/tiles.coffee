@@ -4,12 +4,6 @@
 {Promise} = RSVP
 
 TilesRoute = Route.extend
-  queryParams:
-    mode:
-      refreshModel: false
-    type:
-      refreshModel: false
-
   beforeModel: ->
     unless @currentUser.get("accountLoggedIn")
       @transitionTo "index"
@@ -24,12 +18,6 @@ TilesRoute = Route.extend
     @controller.set "busyCounter", 0
 
   actions:
-    destroyTile: (tile) ->
-      tile
-      .destroyRecord()
-      .finally =>
-        @refresh()
-
     closeModal: ->
       @transitionTo "tiles"
 

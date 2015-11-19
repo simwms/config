@@ -14,7 +14,6 @@
     "qunit": "~1.18.0",
     "font-awesome": "~4.4.0",
     "materialize": "~0.97.0",
-    "d3": "~3.5.5",
     "webcamjs": "*",
     "js-cookie": "~2.0.3",
     "moment": ">= 2.8.0",

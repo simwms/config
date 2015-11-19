@@ -1,0 +1,71 @@
+<div class="container plan-upgrade">
+  <div class="row">
+    <div class="col s12">
+      {{#link-to "plan.index" class="btn btn-large"}}
+        {{fa-icon "caret-left"}}
+        Go Back
+      {{/link-to}}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col s12">
+      {{#em-pricing-table plans=plans chosenPlan=chosenPlan action="selectPlan" as |plan|}}
+        {{#em-pricing-card btnText="select plan" plan=plan}}
+          <li class="title">{{plan.simwmsName}}</li>
+          <li class="price">{{plan.pricePresentation}}</li>
+          <li class="description"><small>{{plan.description}}</small></li>
+          <li class="bullet-item">
+            <span class="bullet-caption">
+              loading docks
+              {{fa-icon "truck"}}
+            </span>
+            {{plan.docks}}
+          </li>
+          <li class="bullet-item">
+            <span class="bullet-caption">
+              weight stations
+              {{fa-icon "balance-scale"}}
+            </span>
+            {{plan.scales}} 
+          </li>
+          <li class="bullet-item">
+            <span class="bullet-caption">
+              storage cells
+              {{fa-icon "cubes"}}
+            </span>
+            {{plan.warehouses}} 
+          </li>
+          <li class="bullet-item">
+            <span class="bullet-caption">
+              employees
+              {{fa-icon "users"}}
+            </span>
+            {{plan.employees}} 
+          </li>
+        {{/em-pricing-card}}
+      {{/em-pricing-table}}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col s12">
+      {{#if newPlan}}
+        {{#unless (eq newPlan currentPlan)}}
+          {{stripe-checkout class="btn-large waves-effect green"
+            image="images/nocam.png"
+            label="Change Service Plan"
+            name="Pisource SimWMS"
+            description=chosenPlan.presentation
+            amount=chosenPlan.monthlyPrice
+            panelLabel="Cost per Month"
+            action="processStripeToken"
+            email=currentUser.account.email}}
+        {{/unless}}
+      {{else}}
+        <button class="btn-large waves-effect pink" {{action "cancelSubscription"}}>
+          {{fa-icon "warning"}}
+          Cancel Service Plan
+        </button>
+      {{/if}}
+    </div>
+  </div>
+</div>

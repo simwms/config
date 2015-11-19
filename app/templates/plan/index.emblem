@@ -1,0 +1,8 @@
+.container.plan-details
+  .row
+    .col.s12.m12.l6.z-depth-1.grey.lighten-5
+      h4.plan-name Plan Name: #{model.planName}
+      material-object-listify model=model displayKeys=keys iconMap=icons
+      .actions
+        link-to "plan.upgrade" class="action"
+          span modify account plan&nbsp;
